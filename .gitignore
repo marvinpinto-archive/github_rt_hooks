@@ -1,0 +1,9 @@
+*.pyc
+env/
+suggested-rpm-requirements.txt
+generated-requirements.txt
+wheels/
+build-env/
+build
+dist/
+*.egg-info/
