@@ -36,9 +36,9 @@ class PullRequest:
         rt_body = self.get_rt_email_body(pr_body, pr_html_url, pr_diff_contents)
         rt_queue = self.app.config['PULL_REQUEST_RT_QUEUE']
         rt = RequestTracker(self.app)
-        rt.create_rt_from_pr(pr_sender, rt_subject, rt_body, rt_queue)
+        rt_ticket_response = rt.create_rt_from_pr(pr_sender, rt_subject, rt_body, rt_queue)
 
-        return 200
+        return rt_ticket_response
 
 
     def retrieve_url_contents(self, url):
