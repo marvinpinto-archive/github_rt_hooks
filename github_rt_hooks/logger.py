@@ -1,5 +1,5 @@
 import logging
-from github_rt_hooks import __version__
+from github_rt_hooks.version import __version__
 
 class VersionLogFormatter(logging.Formatter):
 

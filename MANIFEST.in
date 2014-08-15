@@ -1,5 +1,4 @@
 include *.txt *.py
-include github_rt_hooks/VERSION
 recursive-include github_rt_hooks *.py
 recursive-exclude .git *
 global-exclude *.egg

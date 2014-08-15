@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 from os import mkdir, path
-from github_rt_hooks import __version__
+
+execfile('github_rt_hooks/version.py')
 
 setup(
     name='github-rt-hooks',
