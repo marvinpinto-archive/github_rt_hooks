@@ -17,6 +17,14 @@ class PullRequest:
         if gp.validate_github_paylod(request, hook_secret) is False:
             return 403
 
+        # Make sure the 'action' key actually exists in json.data before
+        # attempting to process it
+        if 'action' not in json.data:
+            # The 'action' key we base things around isn't present so not going
+            # to bother continuing
+            log.debug('"action" key not present - ignoring and moving on')
+            return 200
+
         action = request.json['action']
         if action not in 'opened reopened':
             # We don't care about the assigned, unassigned, labeled, unlabeled,
