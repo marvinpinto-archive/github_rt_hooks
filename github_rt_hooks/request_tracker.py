@@ -7,11 +7,11 @@ import json
 log = logging.getLogger(__name__)
 
 class RequestTracker:
-    def __init__(self, app):
-        self.app = app
-        self.rt_username = self.app.config['REQUEST_TRACKER_USERNAME']
-        self.rt_password = self.app.config['REQUEST_TRACKER_PASSWORD']
-        self.rt_url = self.app.config['REQUEST_TRACKER_URL']
+    def __init__(self, config):
+        self.config = config
+        self.rt_username = self.config['REQUEST_TRACKER_USERNAME']
+        self.rt_password = self.config['REQUEST_TRACKER_PASSWORD']
+        self.rt_url = self.config['REQUEST_TRACKER_URL']
 
         # Remove the trailing slash from the URL, if present
         if self.rt_url.endswith('/'):
@@ -19,12 +19,12 @@ class RequestTracker:
 
 
     def get_rt_sender(self, sender):
-        rt_use_generic_sender = self.app.config['REQUEST_TRACKER_USE_GENERIC_SENDER']
+        rt_use_generic_sender = self.config['REQUEST_TRACKER_USE_GENERIC_SENDER']
         rt_sender = ''
         if rt_use_generic_sender:
-            rt_sender = self.app.config['REQUEST_TRACKER_GENERIC_SENDER_ADDRESS']
+            rt_sender = self.config['REQUEST_TRACKER_GENERIC_SENDER_ADDRESS']
         else:
-            rt_email_domain = self.app.config['REQUEST_TRACKER_EMAIL_DOMAIN']
+            rt_email_domain = self.config['REQUEST_TRACKER_EMAIL_DOMAIN']
             rt_sender = sender + '@' + rt_email_domain
         return rt_sender
 
