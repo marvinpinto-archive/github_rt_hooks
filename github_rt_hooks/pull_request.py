@@ -14,7 +14,7 @@ class PullRequest:
         # self.log_full_request(request)
 
         hook_secret = self.app.config['PULL_REQUEST_HOOK_SECRET']
-        if gp.validate_github_paylod(request, hook_secret) is False:
+        if not gp.validate_github_paylod(request, hook_secret):
             return 403
 
         # Make sure the 'action' key actually exists in json.data before
