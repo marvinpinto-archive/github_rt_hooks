@@ -21,7 +21,7 @@ class RequestTracker:
     def get_rt_sender(self, sender):
         rt_use_generic_sender = self.app.config['REQUEST_TRACKER_USE_GENERIC_SENDER']
         rt_sender = ''
-        if rt_use_generic_sender is True:
+        if rt_use_generic_sender:
             rt_sender = self.app.config['REQUEST_TRACKER_GENERIC_SENDER_ADDRESS']
         else:
             rt_email_domain = self.app.config['REQUEST_TRACKER_EMAIL_DOMAIN']
