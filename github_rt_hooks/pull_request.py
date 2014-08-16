@@ -6,15 +6,15 @@ import requests
 log = logging.getLogger(__name__)
 
 class PullRequest:
-    def __init__(self, app, request):
-        self.app = app
+    def __init__(self, config, request):
+        self.config = config
         self.request = request
 
 
     def process_request(self):
         # self.log_full_request()
 
-        hook_secret = self.app.config['PULL_REQUEST_HOOK_SECRET']
+        hook_secret = self.config['PULL_REQUEST_HOOK_SECRET']
         if not gp.validate_github_paylod(self.request, hook_secret):
             return 403
 
@@ -53,8 +53,8 @@ class PullRequest:
         pr_diff_contents = self.retrieve_url_contents(pr_diff_url)
         rt_subject = self.get_rt_email_subject(pr_title, pr_number)
         rt_body = self.get_rt_email_body(pr_body, pr_html_url, pr_diff_contents)
-        rt_queue = self.app.config['PULL_REQUEST_RT_QUEUE']
-        rt = RequestTracker(self.app.config)
+        rt_queue = self.config['PULL_REQUEST_RT_QUEUE']
+        rt = RequestTracker(self.config)
         rt_ticket_http_response = rt.create_rt_from_pr(pr_sender, rt_subject, rt_body, rt_queue)
         return rt_ticket_http_response
 
