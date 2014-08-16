@@ -18,8 +18,8 @@ pull_request_url = app.config['PULL_REQUEST_HOOK_URL']
 @app.route(pull_request_url, methods=['POST'])
 def process_pull_request():
     if request.headers['Content-Type'] == 'application/json':
-        pr_instance = PullRequest(app)
-        status_code = pr_instance.process_request(request)
+        pr_instance = PullRequest(app, request)
+        status_code = pr_instance.process_request()
         if (status_code != 200):
             abort(status_code)
         else:
