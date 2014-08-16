@@ -13,25 +13,42 @@ class RequestTracker:
         self.rt_password = self.config['REQUEST_TRACKER_PASSWORD']
         self.rt_url = self.config['REQUEST_TRACKER_URL']
 
+        # Settings related to which requester is assigned to this RT
+        self.rt_use_generic_sender = self.config['REQUEST_TRACKER_USE_GENERIC_SENDER']
+        self.rt_generic_sender = self.config['REQUEST_TRACKER_GENERIC_SENDER_ADDRESS']
+        self.rt_sender_email_domain = self.config['REQUEST_TRACKER_EMAIL_DOMAIN']
+
         # Remove the trailing slash from the URL, if present
         if self.rt_url.endswith('/'):
             self.rt_url = self.rt_url[:-1]
 
 
-    def get_rt_sender(self, sender):
-        rt_use_generic_sender = self.config['REQUEST_TRACKER_USE_GENERIC_SENDER']
-        rt_sender = ''
-        if rt_use_generic_sender:
-            rt_sender = self.config['REQUEST_TRACKER_GENERIC_SENDER_ADDRESS']
-        else:
-            rt_email_domain = self.config['REQUEST_TRACKER_EMAIL_DOMAIN']
-            rt_sender = sender + '@' + rt_email_domain
-        return rt_sender
+    @staticmethod
+    def get_rt_sender(use_generic_sender, generic_sender, sender, email_domain):
+        from validate_email import validate_email
+        if use_generic_sender:
+            if not validate_email(generic_sender):
+                error_msg = 'Generic sender email address ' + str(generic_sender) + ' is invalid'
+                log.error(error_msg)
+                raise ValueError(error_msg)
+            log.debug('generic sender is ' + str(generic_sender))
+            return generic_sender
+
+        full_email = sender + '@' + email_domain
+        if not validate_email(full_email):
+            error_msg = 'Full email address ' + str(full_email) + ' is invalid'
+            log.error(error_msg)
+            raise ValueError(error_msg)
+        log.debug('full email is ' + str(full_email))
+        return full_email
 
 
     def create_rt_from_pr(self, sender, subject, body, queue):
         full_rt_url = self.rt_url + '/REST/1.0/'
-        rt_sender = self.get_rt_sender(sender)
+        rt_sender = self.get_rt_sender(self.rt_use_generic_sender,
+                self.rt_generic_sender,
+                sender,
+                self.rt_sender_email_domain)
         resource = RTResource(full_rt_url,
                 self.rt_username,
                 self.rt_password,
