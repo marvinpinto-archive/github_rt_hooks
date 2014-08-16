@@ -14,15 +14,13 @@ def validate_github_paylod(request, github_hook_secret):
 
 
 def does_github_signature_header_exist(request_headers):
-    return_value = False
-    if header_key in request_headers:
-        signature_header = request_headers[header_key]
-        log.debug(header_key + ' header is: ' + str(signature_header))
-        return_value = True
-    else:
+    if not header_key in request_headers:
         log.warn('HTTP header ' + header_key + ' not found!')
-        return_value = False
-    return return_value
+        return False
+
+    signature_header = request_headers[header_key]
+    log.debug(header_key + ' header is: ' + str(signature_header))
+    return True
 
 
 def is_github_signature_valid(request_headers, request_data, github_hook_secret):
