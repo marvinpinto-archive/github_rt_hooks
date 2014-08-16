@@ -29,7 +29,7 @@ class PullRequest:
         if action not in 'opened reopened':
             # We don't care about the assigned, unassigned, labeled, unlabeled,
             # closed, or synchronized actions at the moment.
-            log.debug('Received and ignored action "' +str(action) +'"')
+            log.debug('Received and ignored action "' + str(action) +'"')
             return 200
 
         # We only care about the 'opened' and 'reopened' actions here
@@ -53,7 +53,7 @@ class PullRequest:
         return_value = "***Could not retrieve diff contents***"
         r = requests.get(url)
         if r.status_code != 200:
-            log.error('http status ' +str(r.status_code)+ ' when attempting to contact ' +str(url))
+            log.error('http status ' + str(r.status_code) + ' when attempting to contact ' + str(url))
             return "*** Could not retrieve diff contents ***"
         else:
             return r.text
@@ -69,7 +69,7 @@ class PullRequest:
 
     @staticmethod
     def get_rt_email_subject(pr_title, pr_number):
-        return '[Pull Request] ' +str(pr_title)+ ' (#' +str(pr_number)+ ')'
+        return '[Pull Request] ' + str(pr_title) + ' (#' + str(pr_number) + ')'
 
 
     @staticmethod

@@ -42,7 +42,7 @@ def is_github_signature_valid(request_headers, request_data, github_hook_secret)
             msg=request_data,
             digestmod=hashlib.sha1)
     digest = mac.hexdigest()
-    log.debug('Computed digest is ' + str(digest)+ ', signature is ' +str(signature))
+    log.debug('Computed digest is ' + str(digest) + ', signature is ' + str(signature))
     return_value = (digest == signature)
 
     if not return_value:

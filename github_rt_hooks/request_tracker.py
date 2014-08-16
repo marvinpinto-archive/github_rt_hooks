@@ -56,12 +56,12 @@ class RequestTracker:
             log.error(e.response.parsed)
 
         if response.status_int != 200:
-            log.error('HTTP status ' +str(response.status_int)+ ' when attempting to contact ' +str(full_rt_url))
+            log.error('HTTP status ' + str(response.status_int) + ' when attempting to contact ' + str(full_rt_url))
             log.error(response.status)
             log.error(response.parsed)
             return response.status
 
-        log.info('Successfully created RT "' +str(subject)+ '" from PR initiated by ' +str(rt_sender))
+        log.info('Successfully created RT "' + str(subject) + '" from PR initiated by ' + str(rt_sender))
         log.info(response.parsed)
         return 200
 
