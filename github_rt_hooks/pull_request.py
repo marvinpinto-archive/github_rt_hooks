@@ -50,13 +50,11 @@ class PullRequest:
 
 
     def retrieve_url_contents(self, url):
-        return_value = "***Could not retrieve diff contents***"
         r = requests.get(url)
         if r.status_code != 200:
             log.error('http status ' + str(r.status_code) + ' when attempting to contact ' + str(url))
             return "*** Could not retrieve diff contents ***"
-        else:
-            return r.text
+        return r.text
 
 
     def log_full_request(self, request):
