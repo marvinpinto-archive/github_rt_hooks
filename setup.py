@@ -11,6 +11,6 @@ setup(
     author_email='',
     url='',
     install_requires=open('setup-req.txt').readlines(),
-    packages=find_packages(exclude=['ez_setup', 'test*']),
+    packages=find_packages(exclude=['test*']),
     include_package_data=True,
 )

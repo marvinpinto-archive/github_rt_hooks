@@ -27,7 +27,7 @@ clean:
 
 install: clean
 	$(VIRTUALENV) --no-site-packages $(ENVDIR)
-	$(ENVDIR)/bin/python setup.py install
+	$(ENVDIR)/bin/python setup.py develop
 	$(ENVDIR)/bin/pip install -r $(REQTXTDEV)
 
 test:
