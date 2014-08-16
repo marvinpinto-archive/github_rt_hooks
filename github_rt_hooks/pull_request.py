@@ -17,9 +17,9 @@ class PullRequest:
         if not gp.validate_github_paylod(request, hook_secret):
             return 403
 
-        # Make sure the 'action' key actually exists in json.data before
+        # Make sure the 'action' key actually exists in request.json before
         # attempting to process it
-        if 'action' not in json.data:
+        if 'action' not in request.json:
             # The 'action' key we base things around isn't present so not going
             # to bother continuing
             log.debug('"action" key not present - ignoring and moving on')
