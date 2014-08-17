@@ -76,15 +76,18 @@ class RequestTracker:
         try:
             response = resource.post(path='ticket/new', payload=content,)
         except RTResourceError as e:
-            log.error(e.response.status_int)
-            log.error(e.response.status)
-            log.error(e.response.parsed)
+            error_msg = str(e.response.status_int) + '\n'
+            error_msg += str(e.response.status) + '\n'
+            error_msg += str(e.response.parsed) + '\n'
+            log.error(error_msg)
+            raise ValueError(error_msg)
 
         if response.status_int != 200:
-            log.error('HTTP status ' + str(response.status_int) + ' when attempting to contact ' + str(full_rt_url))
-            log.error(response.status)
-            log.error(response.parsed)
-            return response.status
+            error_msg = 'HTTP status ' + str(response.status_int) + ' when attempting to contact ' + str(full_rt_url) + '\n'
+            error_msg += str(response.status) + '\n'
+            error_msg += str(response.parsed) + '\n'
+            log.error(error_msg)
+            raise ValueError(error_msg)
 
         # RT returns a 200 (indicating the ticket was created) yet something
         # else went wrong. Sometimes related to the custom field name being
@@ -98,9 +101,10 @@ class RequestTracker:
             log.info('Successfully created RT "' + str(subject) + '" from PR initiated by ' + str(rt_sender))
             log.info('URL: ' + str(self.rt_url) + '/Ticket/Display.html?id=' + str(rt_ticket_number))
             log.info(response.parsed)
-            return 200
+            return rt_ticket_number
         except IndexError, e:
-            log.error('Something went wrong when attempting to create the RT!')
-            log.error('Received: ' + str(response.body))
-            return 412
+            error_msg = 'Something went wrong when attempting to create the RT!\n'
+            error_msg += 'Received: ' + str(response.body) + '\n'
+            log.error(error_msg)
+            raise ValueError(error_msg)
 

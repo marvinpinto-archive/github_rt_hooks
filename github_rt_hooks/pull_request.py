@@ -56,13 +56,16 @@ class PullRequest:
         rt_queue = self.config['PULL_REQUEST_RT_QUEUE']
         gh_repo_full_name = self.request.json['repository']['full_name']
         rt = RequestTracker(self.config)
-        rt_ticket_http_response = rt.create_rt_from_pr(pr_sender,
-                rt_subject,
-                rt_body,
-                rt_queue,
-                gh_repo_full_name,
-                pr_number)
-        return rt_ticket_http_response
+        try:
+            rt_ticket_number = rt.create_rt_from_pr(pr_sender,
+                    rt_subject,
+                    rt_body,
+                    rt_queue,
+                    gh_repo_full_name,
+                    pr_number)
+            return 200
+        except ValueError, e:
+            return 412
 
 
     def retrieve_url_contents(self, url):
