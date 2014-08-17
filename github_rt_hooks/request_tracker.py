@@ -11,16 +11,19 @@ class RequestTracker:
         self.config = config
         self.rt_username = self.config['REQUEST_TRACKER_USERNAME']
         self.rt_password = self.config['REQUEST_TRACKER_PASSWORD']
-        self.rt_url = self.config['REQUEST_TRACKER_URL']
 
         # Settings related to which requester is assigned to this RT
         self.rt_use_generic_sender = self.config['REQUEST_TRACKER_USE_GENERIC_SENDER']
         self.rt_generic_sender = self.config['REQUEST_TRACKER_GENERIC_SENDER_ADDRESS']
         self.rt_sender_email_domain = self.config['REQUEST_TRACKER_EMAIL_DOMAIN']
 
+
+    def get_request_tracker_url(self):
+        rt_url = self.config['REQUEST_TRACKER_URL']
         # Remove the trailing slash from the URL, if present
-        if self.rt_url.endswith('/'):
-            self.rt_url = self.rt_url[:-1]
+        if rt_url.endswith('/'):
+            rt_url = rt_url[:-1]
+        return rt_url
 
 
     @staticmethod
@@ -50,7 +53,7 @@ class RequestTracker:
             queue,
             gh_repo_full_name,
             gh_pr):
-        full_rt_url = self.rt_url + '/REST/1.0/'
+        full_rt_url = str(self.get_request_tracker_url()) + '/REST/1.0/'
         rt_sender = self.get_rt_sender(self.rt_use_generic_sender,
                 self.rt_generic_sender,
                 sender,
@@ -99,7 +102,7 @@ class RequestTracker:
             _tup = response.parsed[0][0]
             rt_ticket_number = _tup[1].replace('ticket/','')
             log.info('Successfully created RT "' + str(subject) + '" from PR initiated by ' + str(rt_sender))
-            log.info('URL: ' + str(self.rt_url) + '/Ticket/Display.html?id=' + str(rt_ticket_number))
+            log.info('URL: ' + str(self.get_request_tracker_url()) + '/Ticket/Display.html?id=' + str(rt_ticket_number))
             log.info(response.parsed)
             return rt_ticket_number
         except IndexError, e:

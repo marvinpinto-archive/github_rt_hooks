@@ -2,6 +2,7 @@ import logging
 import github_payload as gp
 from request_tracker import RequestTracker
 import requests
+import json
 
 log = logging.getLogger(__name__)
 
@@ -9,6 +10,15 @@ class PullRequest:
     def __init__(self, config, request):
         self.config = config
         self.request = request
+        self.gh_oauth_token = self.config['GITHUB_OAUTH_TOKEN']
+
+
+    def get_github_url(self):
+        gh_url = self.config['GITHUB_URL']
+        # Remove the trailing slash from the URL, if present
+        if gh_url.endswith('/'):
+            gh_url = gh_url[:-1]
+        return gh_url
 
 
     def process_request(self):
@@ -34,16 +44,16 @@ class PullRequest:
         # or synchronized 
         log.debug('Received action "' + str(action) + '"')
         if action == 'opened':
-            return self.create_new_rt_from_pull_request()
+            return self.create_new_rt_from_pull_request(action)
         elif action == 'reopened':
-            return self.create_new_rt_from_pull_request()
+            return self.create_new_rt_from_pull_request(action)
         else:
             # We don't care about any of the other action events just yet
             log.debug('Ignoring action "' + str(action) + '"')
             return 200
 
 
-    def create_new_rt_from_pull_request(self):
+    def create_new_rt_from_pull_request(self, pr_action):
         pr_title = self.request.json['pull_request']['title']
         pr_number = self.request.json['pull_request']['number']
         pr_body = self.request.json['pull_request']['body']
@@ -56,6 +66,7 @@ class PullRequest:
         rt_queue = self.config['PULL_REQUEST_RT_QUEUE']
         gh_repo_full_name = self.request.json['repository']['full_name']
         rt = RequestTracker(self.config)
+        rt_url = rt.get_request_tracker_url()
         try:
             rt_ticket_number = rt.create_rt_from_pr(pr_sender,
                     rt_subject,
@@ -63,9 +74,34 @@ class PullRequest:
                     rt_queue,
                     gh_repo_full_name,
                     pr_number)
+            if not self.comment_on_pr_with_rt_number(gh_repo_full_name,
+                    pr_number,
+                    rt_ticket_number,
+                    pr_action,
+                    rt_url):
+                return 412
             return 200
         except ValueError, e:
             return 412
+
+
+    def comment_on_pr_with_rt_number(self, repo_name, pr_number, rt_number, pr_action, rt_url):
+        comment_str = self.get_formatted_rt_pr_comment_string(rt_number, rt_url, pr_action)
+        url = str(self.get_github_url()) + '/repos/' + str(repo_name) + '/issues/'
+        url += str(pr_number) + '/comments'
+        payload = {'body': str(comment_str)}
+        headers = {'Content-Type': 'application/json'}
+        r = requests.post(url,
+                auth=(self.gh_oauth_token, 'x-oauth-basic'),
+                data=json.dumps(payload),
+                headers=headers)
+        if r.status_code != 201:
+            log.error('HTTP status ' + str(r.status_code) + ' when attempting to contact ' + str(url))
+            log.error(r.text)
+            return False
+
+        log.debug('Successfully commented on ' + str(repo_name) + '/' + str(pr_number))
+        return True
 
 
     def retrieve_url_contents(self, url):
@@ -82,6 +118,14 @@ class PullRequest:
 
         # Log the request body as well
         log.debug('Raw POST data: ' + json.dumps(self.request.json))
+
+
+    @staticmethod
+    def get_formatted_rt_pr_comment_string(rt_number, rt_url, pr_action):
+        comment = 'RT [' + str(rt_number) + '](' + str(rt_url)
+        comment += '/Ticket/Display.html?id=' + str(rt_number) + ') '
+        comment += 'has been ' + str(pr_action) + ' to track this Pull Request.'
+        return comment
 
 
     @staticmethod
