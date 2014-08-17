@@ -43,7 +43,13 @@ class RequestTracker:
         return full_email
 
 
-    def create_rt_from_pr(self, sender, subject, body, queue):
+    def create_rt_from_pr(self,
+            sender,
+            subject,
+            body,
+            queue,
+            gh_repo_full_name,
+            gh_pr):
         full_rt_url = self.rt_url + '/REST/1.0/'
         rt_sender = self.get_rt_sender(self.rt_use_generic_sender,
                 self.rt_generic_sender,
@@ -60,6 +66,8 @@ class RequestTracker:
                 'Queue': queue,
                 'Subject' : subject,
                 'Requestor': rt_sender,
+                'CF-X-Hub-PR': gh_pr,
+                'CF-X-Hub-Repo': gh_repo_full_name,
                 'Text' : body.replace('\n', '\n '),
             }
         }
@@ -78,7 +86,21 @@ class RequestTracker:
             log.error(response.parsed)
             return response.status
 
-        log.info('Successfully created RT "' + str(subject) + '" from PR initiated by ' + str(rt_sender))
-        log.info(response.parsed)
-        return 200
+        # RT returns a 200 (indicating the ticket was created) yet something
+        # else went wrong. Sometimes related to the custom field name being
+        # nonexistent or the RT user not having enough permission to read/set
+        # this field value.
+        # Note that response.parsed is a nested list of tuples,
+        # e.g. [[('id', 'ticket/587034')]]
+        try:
+            _tup = response.parsed[0][0]
+            rt_ticket_number = _tup[1].replace('ticket/','')
+            log.info('Successfully created RT "' + str(subject) + '" from PR initiated by ' + str(rt_sender))
+            log.info('URL: ' + str(self.rt_url) + '/Ticket/Display.html?id=' + str(rt_ticket_number))
+            log.info(response.parsed)
+            return 200
+        except IndexError, e:
+            log.error('Something went wrong when attempting to create the RT!')
+            log.error('Received: ' + str(response.body))
+            return 412
 

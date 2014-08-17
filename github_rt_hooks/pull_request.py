@@ -54,8 +54,14 @@ class PullRequest:
         rt_subject = self.get_rt_email_subject(pr_title, pr_number)
         rt_body = self.get_rt_email_body(pr_body, pr_html_url, pr_diff_contents)
         rt_queue = self.config['PULL_REQUEST_RT_QUEUE']
+        gh_repo_full_name = self.request.json['repository']['full_name']
         rt = RequestTracker(self.config)
-        rt_ticket_http_response = rt.create_rt_from_pr(pr_sender, rt_subject, rt_body, rt_queue)
+        rt_ticket_http_response = rt.create_rt_from_pr(pr_sender,
+                rt_subject,
+                rt_body,
+                rt_queue,
+                gh_repo_full_name,
+                pr_number)
         return rt_ticket_http_response
 
 
