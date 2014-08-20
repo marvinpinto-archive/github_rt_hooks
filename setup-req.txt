@@ -3,3 +3,4 @@ Flask
 requests
 python-rtkit
 gunicorn
+validate-email

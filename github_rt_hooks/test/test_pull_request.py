@@ -96,3 +96,27 @@ Change Summary:
 These are some basic diff contents"""
         self.assertEquals(result, expected)
 
+    def test_pull_request_opened_rt_pr_comment_string(self):
+        rt_number = '12345'
+        rt_url = 'https://rt.example.com'
+        pr_action = 'opened'
+        expected = 'RT [12345](https://rt.example.com/Ticket/Display.html?id=12345) has been opened to track this Pull Request.'
+        result = PullRequest.get_formatted_rt_pr_comment_string(rt_number, rt_url, pr_action)
+        self.assertEquals(result, expected)
+
+    def test_pull_request_reopened_rt_pr_comment_string(self):
+        rt_number = '12345'
+        rt_url = 'https://rt.example.com'
+        pr_action = 'reopened'
+        expected = 'RT [12345](https://rt.example.com/Ticket/Display.html?id=12345) has been reopened to track this Pull Request.'
+        result = PullRequest.get_formatted_rt_pr_comment_string(rt_number, rt_url, pr_action)
+        self.assertEquals(result, expected)
+
+    def test_pull_request_empty_rt_pr_comment_string(self):
+        rt_number = '12345'
+        rt_url = 'https://rt.example.com'
+        pr_action = ''
+        expected = 'RT [12345](https://rt.example.com/Ticket/Display.html?id=12345) has been  to track this Pull Request.'
+        result = PullRequest.get_formatted_rt_pr_comment_string(rt_number, rt_url, pr_action)
+        self.assertEquals(result, expected)
+
