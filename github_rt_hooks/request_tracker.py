@@ -1,5 +1,6 @@
 import logging
 from rtkit.resource import RTResource
+from rtkit.tracker import Tracker
 from rtkit.authenticators import CookieAuthenticator
 from rtkit.errors import RTResourceError
 import json
@@ -44,6 +45,18 @@ class RequestTracker:
             raise ValueError(error_msg)
         log.debug('full email is ' + str(full_email))
         return full_email
+
+
+    def search_for_rt_tickets(self, gh_pr, gh_repo):
+        full_rt_url = str(self.get_request_tracker_url()) + '/REST/1.0/'
+        tracker = Tracker(full_rt_url,
+                self.rt_username,
+                self.rt_password,
+                CookieAuthenticator)
+        query = "'CF.{X-Hub-PR}'='" + str(gh_pr) + "' AND 'CF.{X-Hub-Repo}'='" + str(gh_repo) + "'"
+        tickets = tracker.search_tickets(query)
+        log.debug('Found ' + str(len(tickets)) + ' RT tickets matching the search criteria: ' + str(query))
+        return [x.id for x in tickets]
 
 
     def create_rt_from_pr(self,
