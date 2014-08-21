@@ -59,6 +59,37 @@ class RequestTracker:
         return [x.id for x in tickets]
 
 
+    def comment_on_rt_ticket(self, rt_number, comment):
+        full_rt_url = str(self.get_request_tracker_url()) + '/REST/1.0/'
+        resource = RTResource(full_rt_url,
+                self.rt_username,
+                self.rt_password,
+                CookieAuthenticator)
+        content = {
+            'content': {
+                'id': rt_number,
+                'Action': 'comment',
+                'Text' : comment.replace('\n', '\n '),
+            }
+        }
+        response = None
+        try:
+            _path = 'ticket/' + str(rt_number) + '/comment'
+            response = resource.post(path=_path, payload=content,)
+        except RTResourceError as e:
+            error_msg = str(e.response.status_int) + '\n'
+            error_msg += str(e.response.status) + '\n'
+            error_msg += str(e.response.parsed) + '\n'
+            log.error(error_msg)
+            raise ValueError(error_msg)
+        if response.status_int != 200:
+            error_msg = 'HTTP status ' + str(response.status_int) + ' when attempting to contact ' + str(full_rt_url) + '\n'
+            error_msg += str(response.status) + '\n'
+            error_msg += str(response.parsed) + '\n'
+            log.error(error_msg)
+            raise ValueError(error_msg)
+
+
     def create_rt_from_pr(self,
             sender,
             subject,
