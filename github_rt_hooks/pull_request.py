@@ -44,16 +44,17 @@ class PullRequest:
         # or synchronized 
         log.debug('Received action "' + str(action) + '"')
         if action == 'opened':
-            return self.create_new_rt_from_pull_request(action)
+            return self.create_new_rt_from_pull_request()
         elif action == 'reopened':
-            return self.create_new_rt_from_pull_request(action)
+            return self.create_new_rt_from_pull_request()
         else:
             # We don't care about any of the other action events just yet
             log.debug('Ignoring action "' + str(action) + '"')
             return 200
 
 
-    def create_new_rt_from_pull_request(self, pr_action):
+    def create_new_rt_from_pull_request(self):
+        pr_action = self.request.json['action']
         pr_title = self.request.json['pull_request']['title']
         pr_number = self.request.json['pull_request']['number']
         pr_body = self.request.json['pull_request']['body']
