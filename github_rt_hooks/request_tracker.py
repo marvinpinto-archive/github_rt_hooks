@@ -53,9 +53,9 @@ class RequestTracker:
                 self.rt_username,
                 self.rt_password,
                 CookieAuthenticator)
-        query = "'CF.{X-Hub-PR}'='" + str(gh_pr) + "' AND 'CF.{X-Hub-Repo}'='" + str(gh_repo) + "'"
+        query = "'CF.{X-Hub-PR}'='%s' AND 'CF.{X-Hub-Repo}'='%s'" % (str(gh_pr), str(gh_repo))
         tickets = tracker.search_tickets(query)
-        log.debug('Found ' + str(len(tickets)) + ' RT tickets matching the search criteria: ' + str(query))
+        log.debug('Found ' + str(len(tickets)) + ' RT tickets matching the search criteria: ' + query)
         return [x.id for x in tickets]
 
 
