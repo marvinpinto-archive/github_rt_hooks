@@ -72,10 +72,9 @@ class RequestTracker:
                 'Text' : comment.replace('\n', '\n '),
             }
         }
-        response = None
         try:
-            _path = 'ticket/' + str(rt_number) + '/comment'
-            response = resource.post(path=_path, payload=content,)
+            path = 'ticket/%s/comment' % (str(rt_number))
+            response = resource.post(path=path, payload=content,)
         except RTResourceError as e:
             error_msg = str(e.response.status_int) + '\n'
             error_msg += str(e.response.status) + '\n'
@@ -83,7 +82,7 @@ class RequestTracker:
             log.error(error_msg)
             raise ValueError(error_msg)
         if response.status_int != 200:
-            error_msg = 'HTTP status ' + str(response.status_int) + ' when attempting to contact ' + str(full_rt_url) + '\n'
+            error_msg = 'HTTP status %s when attempting to contact %s\n' % (str(response.status_int), str(full_rt_url))
             error_msg += str(response.status) + '\n'
             error_msg += str(response.parsed) + '\n'
             log.error(error_msg)
