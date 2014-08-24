@@ -120,3 +120,21 @@ These are some basic diff contents"""
         result = PullRequest.get_formatted_rt_pr_comment_string(rt_number, rt_url, pr_action)
         self.assertEquals(result, expected)
 
+    def test_pull_request_merged_rt_pr_merged_comment_string(self):
+        is_merged = True
+        merged_by = 'bob'
+        pr_number = '12345'
+        gh_repo = 'marvin/testing-mctesterson-repo'
+        expected = 'Pull Request marvin/testing-mctesterson-repo (#12345) has been merged and closed by bob!'
+        result = PullRequest.get_formatted_rt_pr_merged_comment_string(is_merged, merged_by, pr_number, gh_repo)
+        self.assertEquals(result, expected)
+
+    def test_pull_request_unmerged_rt_pr_merged_comment_string(self):
+        is_merged = False
+        merged_by = 'bob'
+        pr_number = '12345'
+        gh_repo = 'marvin/testing-mctesterson-repo'
+        expected = 'Pull Request marvin/testing-mctesterson-repo (#12345) has been closed with UNMERGED changes.'
+        result = PullRequest.get_formatted_rt_pr_merged_comment_string(is_merged, merged_by, pr_number, gh_repo)
+        self.assertEquals(result, expected)
+

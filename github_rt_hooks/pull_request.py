@@ -22,7 +22,7 @@ class PullRequest:
 
 
     def process_request(self):
-        # self.log_full_request()
+        self.log_full_request()
 
         hook_secret = self.config['PULL_REQUEST_HOOK_SECRET']
         if not gp.validate_github_paylod(self.request, hook_secret):
@@ -44,16 +44,47 @@ class PullRequest:
         # or synchronized 
         log.debug('Received action "' + str(action) + '"')
         if action == 'opened':
-            return self.create_new_rt_from_pull_request(action)
+            return self.create_new_rt_from_pull_request()
         elif action == 'reopened':
-            return self.create_new_rt_from_pull_request(action)
+            return self.create_new_rt_from_pull_request()
+        elif action == 'closed':
+            return self.comment_on_rt_ticket_indicating_merge_status()
         else:
             # We don't care about any of the other action events just yet
             log.debug('Ignoring action "' + str(action) + '"')
             return 200
 
 
-    def create_new_rt_from_pull_request(self, pr_action):
+    def comment_on_rt_ticket_indicating_merge_status(self):
+        rt = RequestTracker(self.config)
+
+        is_merged = self.request.json['pull_request']['merged']
+        pr_number = self.request.json['pull_request']['number']
+        gh_repo_full_name = self.request.json['repository']['full_name']
+
+        if is_merged:
+            merged_by = self.request.json['pull_request']['merged_by']['login']
+        else:
+            merged_by = None
+
+        rt_comment = self.get_formatted_rt_pr_merged_comment_string(is_merged,
+                merged_by,
+                pr_number,
+                gh_repo_full_name)
+
+        # Search RT for any/all tickets corresponding to the the repo/pr
+        ticket_list = rt.search_for_rt_tickets(pr_number, gh_repo_full_name)
+
+        try:
+            for ticket in ticket_list:
+                rt.comment_on_rt_ticket(ticket, rt_comment)
+        except ValueError, e:
+            return 412
+        return 200
+
+
+    def create_new_rt_from_pull_request(self):
+        pr_action = self.request.json['action']
         pr_title = self.request.json['pull_request']['title']
         pr_number = self.request.json['pull_request']['number']
         pr_body = self.request.json['pull_request']['body']
@@ -125,6 +156,15 @@ class PullRequest:
         comment = 'RT [' + str(rt_number) + '](' + str(rt_url)
         comment += '/Ticket/Display.html?id=' + str(rt_number) + ') '
         comment += 'has been ' + str(pr_action) + ' to track this Pull Request.'
+        return comment
+
+
+    @staticmethod
+    def get_formatted_rt_pr_merged_comment_string(is_merged, merged_by, pr_number, gh_repo):
+        if is_merged:
+            comment = 'Pull Request %s (#%s) has been merged and closed by %s!' % (str(gh_repo), str(pr_number), str(merged_by))
+        else:
+            comment = 'Pull Request %s (#%s) has been closed with UNMERGED changes.' % (str(gh_repo), str(pr_number))
         return comment
 
 
