@@ -1,5 +1,7 @@
 ## Github RT Hooks
 
+![unmaintained](http://img.shields.io/badge/status-unmaintained-red.png)
+
 Framework for triggering events in [Request
 Tracker](http://bestpractical.com/rt) when interesting things happen on Github.
 
